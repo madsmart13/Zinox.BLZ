@@ -3,697 +3,873 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>BLZ — گیمینگ | Servers • Tournaments • App</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <title>BLZ — Full Gaming Minecraft Servers</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
   <style>
     :root{
-      --bg-1:#03030a;
-      --bg-2:#060612;
-      --panel:#0f1116aa;
+      --bg-1:#02020a;
+      --bg-2:#060616;
       --neon-cyan:#00f0ff;
-      --neon-mag:#ff53c8;
+      --neon-mag:#ff4fc2;
+      --neon-green:#33ffb5;
+      --muted:#98a3b3;
+      --glass: rgba(255,255,255,0.03);
       --accent:#8b5cf6;
-      --muted:#9aa3b2;
-      --success:#7ef5b3;
       --danger:#ff6b6b;
-      --glass-border: rgba(255,255,255,0.04);
+      --success:#7ef5b3;
       font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      color-scheme: dark;
-    }
-
-    /* Full-screen gaming animated background (neon particles + gradient waves) */
-    html,body{height:100%;}
-    body{
-      margin:0;
-      min-height:100vh;
-      background:
-        radial-gradient(1000px 500px at 10% 10%, rgba(0,240,255,0.03), transparent 8%),
-        radial-gradient(800px 400px at 90% 80%, rgba(255,83,200,0.03), transparent 8%),
-        linear-gradient(180deg,var(--bg-1),var(--bg-2));
-      overflow-y:auto;
+      direction: rtl;
       -webkit-font-smoothing:antialiased;
       -moz-osx-font-smoothing:grayscale;
     }
 
-    /* Animated canvas overlay */
-    #bg-canvas{
-      position:fixed;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none;
-      mix-blend-mode:screen;opacity:0.12;
-      filter: blur(10px) saturate(120%);
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg-1),var(--bg-2));overflow:hidden;}
+
+    /* Canvas layers stack */
+    canvas.bg-waves, canvas.bg-pixels {position:fixed;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none;}
+    canvas.bg-waves{mix-blend-mode:screen;opacity:0.22;filter: blur(6px) saturate(120%);}
+    canvas.bg-pixels{mix-blend-mode:normal;opacity:0.85;filter:contrast(1.1) saturate(140%);}
+
+    /* Main container */
+    .shell{position:relative;z-index:3;height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;}
+
+    /* Center card */
+    .stage{
+      width:1200px;max-width:calc(100% - 48px);height:720px;max-height:calc(100vh - 48px);border-radius:18px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border:1px solid rgba(255,255,255,0.04);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.02);
+      overflow:hidden;display:grid;grid-template-columns: 1fr 380px;
     }
 
-    /* container */
-    .container{
-      position:relative;z-index:2;
-      max-width:1200px;margin:24px auto;padding:24px;box-sizing:border-box;
-      display:grid;grid-template-columns: 1fr 360px;gap:22px;
+    /* Left big area with hero & content */
+    .left{
+      padding:28px;display:flex;flex-direction:column;gap:18px;position:relative;
     }
 
-    /* Header */
-    header{
-      grid-column:1 / -1;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px;
-      padding:18px;border-radius:14px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
-      border:1px solid var(--glass-border);backdrop-filter: blur(6px);
+    /* Right sidebar */
+    .right{
+      padding:20px;border-left:1px solid rgba(255,255,255,0.02);display:flex;flex-direction:column;gap:12px;
+      background: linear-gradient(180deg, rgba(10,10,10,0.02), rgba(255,255,255,0.00));
     }
+
+    /* Top header with brand (stylish logo block replacing image) */
     .brand{
-      display:flex;flex-direction:column;
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
     }
-    .brand h1{margin:0;font-size:20px;letter-spacing:1px}
-    .brand p{margin:4px 0 0;color:var(--muted);font-size:13px}
-
-    /* Panel buttons */
-    .panel-buttons{display:flex;gap:8px;align-items:center}
-    .panel-button{
-      padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);
-      background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      color:var(--neon-cyan);font-weight:700;cursor:pointer;box-shadow:0 8px 30px rgba(2,6,23,0.6);
-      transition:transform .14s ease,box-shadow .14s;
+    .brand-left{display:flex;align-items:center;gap:12px}
+    .logo-block{
+      width:64px;height:64px;border-radius:12px;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-mag));
+      display:flex;align-items:center;justify-content:center;font-weight:900;color:#071126;font-size:20px;
+      box-shadow:0 14px 40px rgba(0,0,0,0.6), 0 0 40px rgba(255,0,150,0.04);
     }
-    .panel-button:active{transform:translateY(1px)}
-    .panel-button.ghost{color:var(--muted);background:transparent;border:1px dashed rgba(255,255,255,0.02)}
+    .brand-title{display:flex;flex-direction:column}
+    .brand-title h1{margin:0;font-size:20px;letter-spacing:1px;font-weight:800}
+    .brand-title p{margin:2px 0 0;color:var(--muted);font-size:13px}
 
-    /* layout main + side */
-    main.card{
+    /* Big hero area */
+    .hero{
+      display:flex;gap:18px;align-items:center;
+    }
+    .hero-left{flex:1;display:flex;flex-direction:column;gap:10px}
+    .headline{font-family:Orbitron, Inter, sans-serif;font-size:28px;font-weight:700;color:var(--neon-cyan);text-shadow:0 6px 40px rgba(0,240,255,0.06)}
+    .subhead{color:var(--muted);font-size:14px}
+
+    /* Big section buttons (center) */
+    .big-buttons{
+      display:flex;gap:14px;margin-top:8px;flex-wrap:wrap;
+    }
+    .big-btn{
+      flex:0 0 220px;height:84px;border-radius:14px;padding:12px;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;
       background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
-      border-radius:14px;padding:18px;border:1px solid var(--glass-border);
-      box-shadow: 0 20px 60px rgba(3,6,18,0.6);
-      overflow:hidden;
+      border:1px solid rgba(255,255,255,0.03);cursor:pointer;position:relative;overflow:hidden;
+      transition:transform .18s cubic-bezier(.2,.9,.3,1), box-shadow .18s;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      backdrop-filter: blur(6px);
+      direction:rtl;
     }
-    aside.side{
-      background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
-      border-radius:14px;padding:16px;border:1px solid var(--glass-border);
-      height:fit-content;position:sticky;top:24px;
+    .big-btn:hover{transform:translateY(-8px);box-shadow:0 24px 80px rgba(0,0,0,0.7)}
+    .big-btn .title{font-weight:900;font-size:16px;color:#fff;text-shadow:0 6px 18px rgba(0,0,0,0.6)}
+    .big-btn .desc{font-size:12px;color:var(--muted)}
+    .big-btn .neon-edge{
+      position:absolute;left:0;top:0;bottom:0;width:6px;background:linear-gradient(180deg,var(--neon-cyan),var(--neon-mag));
+      mix-blend-mode:screen;border-top-left-radius:14px;border-bottom-left-radius:14px;transform:scaleY(0.9);
+    }
+    .big-btn .glow{
+      position:absolute;inset:auto 0 0 -30%;height:120%;width:120%;transform:rotate(12deg);
+      background:linear-gradient(90deg, rgba(0,240,255,0.06), rgba(255,80,180,0.05));
+      filter:blur(40px);pointer-events:none;mix-blend-mode:screen;
     }
 
-    h2.section-title{margin:0 0 12px 0;font-size:18px}
-    .desc{color:var(--muted);font-size:13px;margin-bottom:12px}
+    /* Animated small icons inside buttons */
+    .big-btn .pixel{
+      width:18px;height:18px;border-radius:3px;background:linear-gradient(135deg,var(--neon-mag),var(--neon-cyan));box-shadow:0 6px 24px rgba(0,0,0,0.6);
+      margin-left:8px;
+    }
 
-    /* big neon card for panels */
-    .panels{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+    /* Center area — where panels appear */
+    .center-stage{
+      margin-top:8px;border-radius:12px;padding:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+      border:1px solid rgba(255,255,255,0.02);height:420px;overflow:hidden;position:relative;
+    }
+
+    /* Panel container: when a section opens, it shows here */
+    .panel-wrap{position:absolute;inset:12px;border-radius:10px;overflow:hidden}
     .panel{
-      border-radius:12px;padding:14px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
-      border:1px solid var(--glass-border);position:relative;overflow:hidden;min-height:120px;
-      transition:transform .16s ease,box-shadow .16s;
+      position:absolute;inset:0;border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:12px;
+      background:linear-gradient(180deg, rgba(2,6,23,0.48), rgba(0,0,0,0.4));
+      border:1px solid rgba(255,255,255,0.02);backdrop-filter: blur(6px);
+      transform: translateX(40px) scale(0.98);opacity:0;pointer-events:none;
     }
-    .panel:hover{transform:translateY(-6px);box-shadow:0 30px 70px rgba(0,0,0,0.6)}
-    .panel .title{font-weight:800;font-size:15px}
-    .panel .sub{color:var(--muted);font-size:13px;margin-top:8px}
+    .panel.open{transform: translateX(0) scale(1);opacity:1;pointer-events:auto;transition:transform .54s cubic-bezier(.16,.9,.24,1), opacity .36s}
+    .panel.closing{transform: translateX(40px) scale(0.98);opacity:0;pointer-events:none;transition:transform .32s ease, opacity .32s}
 
-    /* reveal area that slides open — heavily animated (gamey) */
-    .reveal{
-      height:0;overflow:hidden;opacity:0;pointer-events:none;
-      transition: height .5s cubic-bezier(.18,.85,.25,1), opacity .28s ease;
-    }
-    .reveal.open{
-      height:180px;opacity:1;pointer-events:auto;
-    }
-    .reveal-inner{
-      margin-top:12px;border-radius:10px;padding:12px;height:100%;
-      background:linear-gradient(90deg, rgba(0,0,0,0.2), rgba(255,255,255,0.01));
-      border:1px solid rgba(255,255,255,0.02);position:relative;overflow:hidden;
-    }
+    /* panel header */
+    .panel .p-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .panel .p-title{font-weight:900;font-size:18px;color:var(--neon-mag)}
+    .panel .p-sub{color:var(--muted);font-size:13px}
 
-    /* flashy motion graphics inside reveal */
-    .reveal-inner .fx{
-      position:absolute;inset:0;pointer-events:none;
-      background: radial-gradient(circle at 20% 10%, rgba(0,240,255,0.04), transparent 6%),
-                  radial-gradient(circle at 80% 90%, rgba(255,83,200,0.03), transparent 6%);
-      animation: shimmer 6s linear infinite;
-      mix-blend-mode:screen;opacity:1;
-    }
-    @keyframes shimmer{
-      0%{transform:translateX(-10px) translateY(0)}
-      50%{transform:translateX(18px) translateY(-12px)}
-      100%{transform:translateX(-10px) translateY(0)}
-    }
+    /* content grid inside panels */
+    .panel-grid{display:grid;grid-template-columns: 1fr 320px;gap:12px;height:100%}
+    .panel-left{overflow:auto;padding-right:6px}
+    .panel-right{border-left:1px solid rgba(255,255,255,0.02);padding-left:12px;display:flex;flex-direction:column;gap:10px}
 
-    /* Server rows */
+    /* server list */
     .server-list{display:flex;flex-direction:column;gap:12px}
-    .server{
-      display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border-radius:10px;
-      border:1px solid rgba(255,255,255,0.02);background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+    .srv-row{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border-radius:10px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.05));
+      border:1px solid rgba(255,255,255,0.02);
     }
-    .server .meta{display:flex;gap:10px;align-items:center}
-    .badge{
-      width:42px;height:42px;border-radius:8px;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-mag));
-      display:flex;align-items:center;justify-content:center;font-weight:900;color:#071126;
+    .srv-meta{display:flex;gap:12px;align-items:center}
+    .srv-badge{width:56px;height:56px;border-radius:8px;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-mag));display:flex;align-items:center;justify-content:center;font-weight:900;color:#071126}
+    .srv-text{display:flex;flex-direction:column}
+    .srv-name{font-weight:900}
+    .srv-sub{font-size:12px;color:var(--muted)}
+
+    /* small control styles */
+    .small-actions{display:flex;gap:8px;align-items:center}
+    .btn{
+      padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);cursor:pointer;background:transparent;color:var(--neon-cyan);font-weight:800;
+      transition:transform .12s, box-shadow .12s;
     }
-    .server .info{font-weight:700}
-    .server .sub{color:var(--muted);font-size:13px}
+    .btn.primary{background:linear-gradient(90deg,var(--neon-cyan),var(--neon-mag));color:#071126;border:0}
+    .btn.ghost{color:var(--muted);border:1px dashed rgba(255,255,255,0.02)}
 
-    .controls{display:flex;gap:8px;align-items:center}
+    /* server-control area (inside each srv) */
+    .srv-control{margin-top:8px;padding:10px;border-radius:10px;background:linear-gradient(90deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));display:none;flex-direction:column;gap:10px;border:1px solid rgba(255,255,255,0.02)}
+    .srv-control.open{display:flex}
 
-    /* server-control inside reveal */
-    .server-control{
-      margin-top:10px;padding:10px;border-radius:10px;background:linear-gradient(90deg, rgba(0,0,0,0.18), rgba(255,255,255,0.00));
-      border:1px solid rgba(255,255,255,0.02);display:none;flex-direction:column;gap:10px;
+    .portal-row{display:flex;gap:8px}
+    .portal{padding:8px 10px;border-radius:999px;border:1px solid rgba(255,255,255,0.03);cursor:pointer;font-weight:800;color:var(--muted);background:transparent}
+    .portal.active{background:linear-gradient(90deg, rgba(0,240,255,0.06), rgba(255,80,180,0.06));color:var(--neon-cyan);border:1px solid rgba(0,240,255,0.12)}
+
+    /* neon progress & loading graphics */
+    .loader-wrap{display:flex;flex-direction:column;gap:8px}
+    .neo-typed{font-weight:900;letter-spacing:0.6px}
+    .neo-bar{height:12px;border-radius:999px;background:rgba(255,255,255,0.02);overflow:hidden;border:1px solid rgba(255,255,255,0.01)}
+    .neo-bar .fill{height:100%;width:0;background:linear-gradient(90deg,var(--neon-cyan),var(--neon-mag));box-shadow:0 10px 40px rgba(139,92,246,0.12);transition:width .2s linear}
+
+    .msg{padding:8px;border-radius:8px;text-align:center;font-weight:900}
+    .msg.error{background:linear-gradient(90deg, rgba(255,107,107,0.06), rgba(255,255,255,0.01));color:var(--danger)}
+    .msg.success{background:linear-gradient(90deg, rgba(126,245,179,0.06), rgba(255,255,255,0.01));color:var(--success)}
+    .msg.warn{background:linear-gradient(90deg, rgba(255,237,130,0.06), rgba(255,255,255,0.01));color:#ffd166}
+
+    /* coming soon sticker */
+    .coming{padding:10px;border-radius:10px;font-weight:900;text-align:center;color:var(--neon-mag);border:1px solid rgba(255,80,180,0.08)}
+
+    /* small footer/info */
+    .info-box{padding:12px;border-radius:10px;background:linear-gradient(90deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));border:1px solid rgba(255,255,255,0.02);color:var(--muted);font-size:13px}
+
+    /* right column: quick actions */
+    .right h3{margin:0;font-size:14px;font-weight:900;color:var(--neon-cyan)}
+    .quick-list{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+    .ghost-small{padding:8px;border-radius:10px;border:1px dashed rgba(255,255,255,0.03);background:transparent;color:var(--muted);cursor:pointer}
+
+    /* glitch styles */
+    .glitch{
+      position:relative;
     }
-    .server-control.open{display:flex}
-
-    .radios{display:flex;gap:8px}
-    .radio{
-      padding:8px 10px;border-radius:999px;border:1px solid rgba(255,255,255,0.03);cursor:pointer;font-weight:700;
-      background:transparent;color:var(--muted);
+    .glitch::before, .glitch::after{
+      content:attr(data-text);
+      position:absolute;left:0;top:0;width:100%;height:100%;overflow:hidden;
+      clip-path:polygon(0 0,100% 0,100% 100%,0 100%);
+      opacity:0.7;
     }
-    .radio.active{background:linear-gradient(90deg, rgba(0,240,255,0.06), rgba(255,83,200,0.06));color:var(--neon-cyan);border:1px solid rgba(0,240,255,0.12)}
-
-    /* Connection loading improved: neon progress bar + subtle typed text */
-    .conn-box{display:flex;flex-direction:column;gap:8px}
-    .conn-line{display:flex;align-items:center;gap:12px}
-    .progress{
-      position:relative;height:12px;border-radius:999px;background:rgba(255,255,255,0.03);overflow:hidden;border:1px solid rgba(255,255,255,0.02);flex:1;
-      box-shadow:inset 0 -6px 24px rgba(0,0,0,0.6);
-    }
-    .progress .bar{
-      position:absolute;left:0;top:0;bottom:0;width:0%;
-      background: linear-gradient(90deg,var(--neon-cyan),var(--neon-mag));
-      box-shadow:0 6px 30px rgba(139,92,246,0.12);
-      border-radius:999px;
-      transition:width .2s linear;
-    }
-    .conn-status{font-weight:800;letter-spacing:0.6px}
-
-    /* messages */
-    .msg{padding:8px 10px;border-radius:8px;font-weight:800;text-align:center}
-    .msg.success{background:linear-gradient(90deg, rgba(126,245,179,0.08), rgba(255,255,255,0.01));color:var(--success);border:1px solid rgba(126,245,179,0.08)}
-    .msg.error{background:linear-gradient(90deg, rgba(255,107,107,0.06), rgba(255,255,255,0.01));color:var(--danger);border:1px solid rgba(255,107,107,0.06)}
-    .msg.warn{background:linear-gradient(90deg, rgba(255,237,130,0.06), rgba(255,255,255,0.01));color:#ffd166;border:1px solid rgba(255,237,130,0.06)}
-
-    /* password row */
-    .pw-row{display:flex;gap:8px;align-items:center}
-    input[type="password"]{background:transparent;border:1px solid rgba(255,255,255,0.03);padding:10px;border-radius:8px;color:inherit;font-weight:700}
-
-    /* Coming soon sticker */
-    .coming{
-      padding:10px 12px;border-radius:10px;font-weight:900;text-align:center;color:var(--neon-mag);
-      border:1px solid rgba(255,83,200,0.08);
-      background:linear-gradient(90deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
-    }
-
-    footer{grid-column:1 / -1;color:var(--muted);font-size:13px;text-align:center;margin-top:12px}
+    .glitch::before{left:2px;text-shadow:-2px 0 var(--neon-mag);mix-blend-mode:screen;animation:glitch-anim-1 2.6s infinite;}
+    .glitch::after{left:-2px;text-shadow:2px 0 var(--neon-cyan);mix-blend-mode:screen;animation:glitch-anim-2 3.2s infinite;}
+    @keyframes glitch-anim-1{0%{transform:translateY(0)}25%{transform:translateY(-2px)}50%{transform:translateY(1px)}75%{transform:translateY(-1px)}100%{transform:translateY(0)}}
+    @keyframes glitch-anim-2{0%{transform:translateY(0)}20%{transform:translateY(3px)}60%{transform:translateY(-2px)}100%{transform:translateY(0)}}
 
     /* responsive */
-    @media (max-width:980px){
-      .container{grid-template-columns:1fr;padding:12px}
-      .panels{grid-template-columns:1fr}
-      aside.side{position:relative;top:auto}
+    @media (max-width:1100px){
+      .stage{grid-template-columns:1fr; height:100vh}
+      .center-stage{height:360px}
+      .panel-grid{grid-template-columns:1fr}
+    }
+    @media (max-width:520px){
+      .big-btn{flex:1 1 100%;height:72px}
+      .stage{height:100vh;padding:12px}
     }
   </style>
 </head>
 <body>
-  <!-- Animated canvas (particles/waves) -->
-  <canvas id="bg-canvas"></canvas>
+  <!-- Background canvases -->
+  <canvas class="bg-waves" id="bgWaves"></canvas>
+  <canvas class="bg-pixels" id="bgPixels"></canvas>
 
-  <div class="container">
-    <header>
-      <div class="brand">
-        <h1>BLZ</h1>
-        <p>پلتفرم گیمینگ و سرورهای Minecraft</p>
-      </div>
+  <div class="shell">
+    <div class="stage" role="application" aria-label="BLZ Gaming Dashboard">
+      <div class="left">
+        <div class="brand">
+          <div class="brand-left">
+            <div class="logo-block">BLZ</div>
+            <div class="brand-title">
+              <h1>BLZ</h1>
+              <p>پلتفرم گیمینگ — سرورهای Minecraft</p>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div style="color:var(--muted);font-weight:800">تجربهٔ فول گیمینگ</div>
+          </div>
+        </div>
 
-      <div class="panel-buttons" role="toolbar" aria-label="پنل‌ها">
-        <button class="panel-button" data-open="panel-servers">پنل سرورها</button>
-        <button class="panel-button" data-open="panel-app">پنل اپ</button>
-        <button class="panel-button" data-open="panel-tourn">پنل تورنومنت</button>
-        <button class="panel-button" data-open="panel-events">پنل ایونت</button>
-      </div>
-    </header>
+        <div class="hero">
+          <div class="hero-left">
+            <div class="headline glitch" data-text="BLZ — Ultimate Minecraft Experience">BLZ — Ultimate Minecraft Experience</div>
+            <div class="subhead">برای شروع یکی از بخش‌ها را انتخاب کن. هر بخش حالت گرافیکی و انیمیشن مخصوص دارد.</div>
 
-    <main class="card" id="main-area" aria-live="polite">
-      <h2 class="section-title">داشبورد BLZ</h2>
-      <div class="desc">برای باز کردن هر بخش روی دکمه‌ی مربوطه در بالا کلیک کنید. تمامی فعال‌سازی‌ها و جریان‌ها در سمت کاربر شبیه‌سازی شده‌اند.</div>
-
-      <div class="panels">
-        <!-- Servers Panel -->
-        <div class="panel" id="panel-servers" role="region" aria-labelledby="servers-title" aria-hidden="true">
-          <div class="title" id="servers-title">Servers</div>
-          <div class="sub">سرورهای Minecraft — آی‌پی‌ها: <span style="font-weight:800">ir</span>, <span style="font-weight:800">ru</span>, <span style="font-weight:800">tr</span></div>
-
-          <div class="reveal" id="reveal-servers">
-            <div class="reveal-inner">
-              <div class="fx"></div>
-              <div class="server-list">
-                <!-- Server 01 -->
-                <div>
-                  <div class="server">
-                    <div class="meta">
-                      <div class="badge">S1</div>
-                      <div>
-                        <div class="info">Server 01</div>
-                        <div class="sub">IR — Low latency — Minecraft</div>
-                      </div>
-                    </div>
-                    <div class="controls">
-                      <button class="panel-button" data-toggle="srv" data-id="1">پنل</button>
-                      <button class="panel-button ghost" data-copy="play.blz.ir">کپی IP</button>
-                    </div>
+            <div class="big-buttons" role="tablist" aria-label="بخش‌ها">
+              <div class="big-btn" data-open="servers" tabindex="0" aria-pressed="false" title="Servers">
+                <div class="neon-edge"></div>
+                <div class="glow"></div>
+                <div style="display:flex;align-items:center;justify-content:flex-end">
+                  <div>
+                    <div class="title">Servers</div>
+                    <div class="desc">سرورهای Minecraft — IR • RU • TR</div>
                   </div>
+                  <div style="width:12px"></div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:flex-end;margin-top:8px">
+                  <div class="pixel"></div>
+                  <div style="width:8px"></div>
+                </div>
+              </div>
 
-                  <div class="server-control" id="srv-control-1" data-server="1" aria-hidden="true">
-                    <div class="conn-box">
-                      <div class="conn-line">
-                        <div class="radios" role="tablist" aria-label="پورتال‌ها">
-                          <div class="radio active" data-portal="Portal 1">Portal 1</div>
-                          <div class="radio" data-portal="Portal 2">Portal 2</div>
-                        </div>
-                        <div style="display:flex;gap:8px">
-                          <button class="panel-button primary" data-connect="1">Connect</button>
-                          <div style="min-width:120px;text-align:right;color:var(--muted);font-weight:700">play.blz.ir</div>
-                        </div>
-                      </div>
-
-                      <div class="progress" aria-hidden="true">
-                        <div class="bar" id="bar-1"></div>
-                      </div>
-                      <div id="conn-msg-1" class="conn-status"></div>
-                    </div>
+              <div class="big-btn" data-open="app" tabindex="0" title="App">
+                <div class="neon-edge"></div>
+                <div class="glow"></div>
+                <div style="display:flex;align-items:center;justify-content:flex-end">
+                  <div>
+                    <div class="title">اپ تحریم شکن</div>
+                    <div class="desc">Anti-Censorship App</div>
                   </div>
                 </div>
+                <div style="display:flex;align-items:center;justify-content:flex-end;margin-top:8px">
+                  <div class="pixel"></div>
+                </div>
+              </div>
 
-                <!-- Server 02 -->
-                <div>
-                  <div class="server">
-                    <div class="meta">
-                      <div class="badge">S2</div>
-                      <div>
-                        <div class="info">Server 02</div>
-                        <div class="sub">RU — Competitive — Minecraft</div>
-                      </div>
-                    </div>
-                    <div class="controls">
-                      <button class="panel-button" data-toggle="srv" data-id="2">پنل</button>
-                      <button class="panel-button ghost" data-copy="play.blz.ru">کپی IP</button>
-                    </div>
-                  </div>
-
-                  <div class="server-control" id="srv-control-2" data-server="2" aria-hidden="true">
-                    <div class="conn-box">
-                      <div class="conn-line">
-                        <div class="radios" role="tablist" aria-label="پورتال‌ها">
-                          <div class="radio active" data-portal="Portal 1">Portal 1</div>
-                          <div class="radio" data-portal="Portal 2">Portal 2</div>
-                        </div>
-                        <div style="display:flex;gap:8px">
-                          <button class="panel-button primary" data-connect="2">Connect</button>
-                          <div style="min-width:120px;text-align:right;color:var(--muted);font-weight:700">play.blz.ru</div>
-                        </div>
-                      </div>
-
-                      <div class="progress" aria-hidden="true">
-                        <div class="bar" id="bar-2"></div>
-                      </div>
-                      <div id="conn-msg-2" class="conn-status"></div>
-                    </div>
+              <div class="big-btn" data-open="tournament" tabindex="0" title="Tournament">
+                <div class="neon-edge"></div>
+                <div class="glow"></div>
+                <div style="display:flex;align-items:center;justify-content:flex-end">
+                  <div>
+                    <div class="title">Tournament</div>
+                    <div class="desc">مسابقات و جدول‌ها</div>
                   </div>
                 </div>
+                <div style="display:flex;align-items:center;justify-content:flex-end;margin-top:8px">
+                  <div class="pixel"></div>
+                </div>
+              </div>
 
-                <!-- Server 03 (Admin) -->
-                <div>
-                  <div class="server">
-                    <div class="meta">
-                      <div class="badge">S3</div>
-                      <div>
-                        <div class="info">Server 03</div>
-                        <div class="sub">TR — Admin — Minecraft</div>
-                      </div>
-                    </div>
-                    <div class="controls">
-                      <button class="panel-button" data-toggle="srv" data-id="3">پنل</button>
-                      <button class="panel-button ghost" data-copy="play.blz.tr">کپی IP</button>
-                    </div>
-                  </div>
-
-                  <div class="server-control" id="srv-control-3" data-server="3" aria-hidden="true">
-                    <div class="pw-row">
-                      <input id="admin-pw" type="password" placeholder="رمز عبور ادمین" aria-label="admin password" />
-                      <button class="panel-button primary" data-verify="3">ارسال</button>
-                    </div>
-                    <div id="admin-msg" style="margin-top:8px"></div>
+              <div class="big-btn" data-open="events" tabindex="0" title="Events">
+                <div class="neon-edge"></div>
+                <div class="glow"></div>
+                <div style="display:flex;align-items:center;justify-content:flex-end">
+                  <div>
+                    <div class="title">Events</div>
+                    <div class="desc">ایونت‌ها و لانچ‌ها</div>
                   </div>
                 </div>
-
+                <div style="display:flex;align-items:center;justify-content:flex-end;margin-top:8px">
+                  <div class="pixel"></div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- App Panel -->
-        <div class="panel" id="panel-app" role="region" aria-labelledby="app-title" aria-hidden="true">
-          <div class="title" id="app-title">Anti-Censorship App</div>
-          <div class="sub">ابزاری برای عبور از محدودیت‌ها و افزایش حریم خصوصی</div>
+        <div class="center-stage" aria-live="polite">
+          <div class="panel-wrap">
 
-          <div class="reveal" id="reveal-app">
-            <div class="reveal-inner">
-              <div class="fx"></div>
+            <!-- Servers Panel -->
+            <section class="panel" id="panel-servers" aria-hidden="true" role="region" aria-label="Servers Panel">
+              <div class="p-head">
+                <div>
+                  <div class="p-title">Servers</div>
+                  <div class="p-sub">سرورهای Minecraft — آی‌پی‌ها: <strong>play.blz.ir</strong> ، <strong>play.blz.ru</strong> ، <strong>play.blz.tr</strong></div>
+                </div>
+                <div>
+                  <button class="btn ghost" data-close="panel-servers">بستن</button>
+                </div>
+              </div>
+
+              <div class="panel-grid">
+                <div class="panel-left">
+                  <div class="server-list">
+
+                    <!-- Server 01 IR -->
+                    <div class="srv-row" id="srv1-row">
+                      <div class="srv-meta">
+                        <div class="srv-badge">S1</div>
+                        <div class="srv-text">
+                          <div class="srv-name">Server 01</div>
+                          <div class="srv-sub">IR — Low latency — Minecraft</div>
+                        </div>
+                      </div>
+                      <div class="small-actions">
+                        <button class="btn" data-toggle-srv="1">پنل</button>
+                        <button class="btn ghost" data-copy="play.blz.ir">کپی IP</button>
+                      </div>
+                    </div>
+
+                    <div class="srv-control" id="srv-control-1" data-server="1" aria-hidden="true">
+                      <div class="portal-row" role="tablist" aria-label="پورتال‌ها">
+                        <div class="portal active" data-portal="Portal 1">Portal 1</div>
+                        <div class="portal" data-portal="Portal 2">Portal 2</div>
+                      </div>
+
+                      <div class="loader-wrap">
+                        <div style="display:flex;align-items:center;justify-content:space-between">
+                          <div class="neo-typed" id="typed-1"></div>
+                          <div style="display:flex;gap:8px;align-items:center">
+                            <button class="btn primary" data-connect="1">Connect</button>
+                          </div>
+                        </div>
+                        <div class="neo-bar"><div class="fill" id="bar-1"></div></div>
+                        <div id="msg-1" style="min-height:30px"></div>
+                      </div>
+                    </div>
+
+                    <!-- Server 02 RU -->
+                    <div class="srv-row" id="srv2-row">
+                      <div class="srv-meta">
+                        <div class="srv-badge">S2</div>
+                        <div class="srv-text">
+                          <div class="srv-name">Server 02</div>
+                          <div class="srv-sub">RU — Competitive — Minecraft</div>
+                        </div>
+                      </div>
+                      <div class="small-actions">
+                        <button class="btn" data-toggle-srv="2">پنل</button>
+                        <button class="btn ghost" data-copy="play.blz.ru">کپی IP</button>
+                      </div>
+                    </div>
+
+                    <div class="srv-control" id="srv-control-2" data-server="2" aria-hidden="true">
+                      <div class="portal-row" role="tablist" aria-label="پورتال‌ها">
+                        <div class="portal active" data-portal="Portal 1">Portal 1</div>
+                        <div class="portal" data-portal="Portal 2">Portal 2</div>
+                      </div>
+
+                      <div class="loader-wrap">
+                        <div style="display:flex;align-items:center;justify-content:space-between">
+                          <div class="neo-typed" id="typed-2"></div>
+                          <div style="display:flex;gap:8px;align-items:center">
+                            <button class="btn primary" data-connect="2">Connect</button>
+                          </div>
+                        </div>
+                        <div class="neo-bar"><div class="fill" id="bar-2"></div></div>
+                        <div id="msg-2" style="min-height:30px"></div>
+                      </div>
+                    </div>
+
+                    <!-- Server 03 TR (Admin) -->
+                    <div class="srv-row" id="srv3-row">
+                      <div class="srv-meta">
+                        <div class="srv-badge">S3</div>
+                        <div class="srv-text">
+                          <div class="srv-name">Server 03</div>
+                          <div class="srv-sub">TR — Admin — Minecraft</div>
+                        </div>
+                      </div>
+                      <div class="small-actions">
+                        <button class="btn" data-toggle-srv="3">پنل</button>
+                        <button class="btn ghost" data-copy="play.blz.tr">کپی IP</button>
+                      </div>
+                    </div>
+
+                    <div class="srv-control" id="srv-control-3" data-server="3" aria-hidden="true">
+                      <div style="display:flex;align-items:center;gap:8px">
+                        <input id="admin-pw" type="password" placeholder="رمز عبور ادمین" style="flex:1;padding:10px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.03);color:inherit;font-weight:800"/>
+                        <button class="btn primary" data-verify="3">ارسال</button>
+                      </div>
+                      <div id="msg-3" style="min-height:30px"></div>
+                    </div>
+
+                  </div>
+                </div>
+
+                <aside class="panel-right">
+                  <div class="info-box">
+                    <div style="font-weight:900">اطلاع</div>
+                    <div style="margin-top:8px;color:var(--muted)">تمامی جریان‌ها سمت کاربر شبیه‌سازی شده‌اند. برای باز کردن بخش‌ها از دکمه‌های بالا استفاده کن.</div>
+                  </div>
+
+                  <div style="margin-top:auto">
+                    <div style="font-weight:900;margin-bottom:6px">آی‌پی‌ها</div>
+                    <div class="srv-sub">play.blz.ir</div>
+                    <div class="srv-sub">play.blz.ru</div>
+                    <div class="srv-sub">play.blz.tr</div>
+                  </div>
+                </aside>
+              </div>
+            </section>
+
+            <!-- App Panel -->
+            <section class="panel" id="panel-app" aria-hidden="true" role="region" aria-label="App Panel">
+              <div class="p-head">
+                <div>
+                  <div class="p-title">اپ تحریم شکن</div>
+                  <div class="p-sub">ابزاری برای عبور از محدودیت‌ها</div>
+                </div>
+                <div><button class="btn ghost" data-close="panel-app">بستن</button></div>
+              </div>
+
               <div style="display:flex;flex-direction:column;gap:12px;align-items:stretch">
-                <div class="coming">به‌زودی! (COMING SOON!)</div>
-                <div class="desc">برای باز کردن جزئیات روی دکمه‌ی پنل بالای صفحه کلیک کن.</div>
+                <div class="coming" style="background:linear-gradient(90deg, rgba(255,80,180,0.06), rgba(255,255,255,0.01))">توجه: به‌زودی! (COMING SOON!)</div>
+                <div class="desc" style="color:var(--muted)">جزئیات اپ در همین‌جا نمایش داده خواهد شد. برای دموی UI این پنل باز و بسته می‌شود.</div>
+                <div style="display:flex;gap:8px">
+                  <div style="flex:1;border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,0.02);background:linear-gradient(90deg, rgba(0,0,0,0.25), rgba(255,255,255,0.00))">
+                    <div style="font-weight:900">ویژگی‌ها</div>
+                    <ul style="margin:8px 0 0 0;padding-left:16px;color:var(--muted)">
+                      <li>رمزنگاری قوی</li>
+                      <li>تغییر مسیر هوشمند</li>
+                      <li>پیکربندی ساده</li>
+                    </ul>
+                  </div>
+                  <div style="width:260px;border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,0.02);display:flex;flex-direction:column;gap:8px">
+                    <div style="font-weight:900">اطلاع</div>
+                    <div class="desc" style="color:var(--muted)">این اپ هنوز منتشر نشده — منتظر لانچ باشید.</div>
+                  </div>
+                </div>
               </div>
-            </div>
+            </section>
+
+            <!-- Tournament Panel -->
+            <section class="panel" id="panel-tournament" aria-hidden="true" role="region" aria-label="Tournament Panel">
+              <div class="p-head">
+                <div>
+                  <div class="p-title">Tournament</div>
+                  <div class="p-sub">مسابقات و جدول‌ها</div>
+                </div>
+                <div><button class="btn ghost" data-close="panel-tournament">بستن</button></div>
+              </div>
+
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <div class="coming">تورنومنت‌ها به‌زودی باز می‌شوند! (COMING SOON!)</div>
+                <div style="display:flex;gap:12px">
+                  <div style="flex:1;border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,0.02);background:linear-gradient(90deg, rgba(0,0,0,0.22), rgba(255,255,255,0.00))">
+                    <div style="font-weight:900">رویدادها</div>
+                    <div style="color:var(--muted);margin-top:8px">جزئیات و جوایز بعدا اضافه خواهد شد.</div>
+                  </div>
+                  <div style="width:240px" class="info-box">
+                    برنامه‌ریزی و جدول مسابقات در این بخش قرار می‌گیرد.
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Events Panel -->
+            <section class="panel" id="panel-events" aria-hidden="true" role="region" aria-label="Events Panel">
+              <div class="p-head">
+                <div>
+                  <div class="p-title">Events</div>
+                  <div class="p-sub">ایونت‌ها و لانچ‌ها</div>
+                </div>
+                <div><button class="btn ghost" data-close="panel-events">بستن</button></div>
+              </div>
+
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <div class="coming">ایونت‌ها به‌زودی! (COMING SOON!)</div>
+                <div style="color:var(--muted)">هر ایونت با انیمیشن‌های گرافیکی مخصوص نمایش داده خواهد شد.</div>
+              </div>
+            </section>
+
           </div>
         </div>
+      </div>
 
-        <!-- Tournament Panel -->
-        <div class="panel" id="panel-tourn" role="region" aria-labelledby="tourn-title" aria-hidden="true">
-          <div class="title" id="tourn-title">Tournament</div>
-          <div class="sub">مسابقات و جدول‌ها</div>
-
-          <div class="reveal" id="reveal-tourn">
-            <div class="reveal-inner">
-              <div class="fx"></div>
-              <div class="coming">به‌زودی! (COMING SOON!)</div>
-            </div>
-          </div>
+      <aside class="right">
+        <h3>پنل سریع</h3>
+        <div class="quick-list">
+          <button class="ghost-small" data-open="panel-servers">باز کردن Servers</button>
+          <button class="ghost-small" data-open="panel-app">باز کردن App</button>
+          <button class="ghost-small" data-open="panel-tournament">باز کردن Tournament</button>
+          <button class="ghost-small" data-open="panel-events">باز کردن Events</button>
         </div>
 
-        <!-- Events Panel -->
-        <div class="panel" id="panel-events" role="region" aria-labelledby="events-title" aria-hidden="true">
-          <div class="title" id="events-title">Events</div>
-          <div class="sub">ایونت‌ها و لانچ‌ها</div>
-
-          <div class="reveal" id="reveal-events">
-            <div class="reveal-inner">
-              <div class="fx"></div>
-              <div class="coming">به‌زودی! (COMING SOON!)</div>
-            </div>
-          </div>
+        <div class="info-box" style="margin-top:12px">
+          <div style="font-weight:900">توضیح</div>
+          <div style="margin-top:8px;color:var(--muted)">دکمه‌ها را بزن تا پنل‌ها با افکت‌های گیمینگ باز شوند. تمامی عملکردهای اتصال و پسورد محلی شبیه‌سازی شده‌اند.</div>
         </div>
-      </div>
-    </main>
 
-    <aside class="side">
-      <div style="margin-bottom:12px">
-        <div style="font-weight:900;font-size:16px">پنل کنترل سریع</div>
-        <div class="desc" style="margin-top:6px">دکمه‌ی پنل هر بخش در بالا باعث باز شدن بخش مربوطه و افکت‌های گیمینگ می‌شود.</div>
-      </div>
-
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <button class="panel-button" data-open="panel-servers">باز کردن Servers</button>
-        <button class="panel-button" data-open="panel-app">باز کردن App</button>
-        <button class="panel-button" data-open="panel-tourn">باز کردن Tournament</button>
-        <button class="panel-button" data-open="panel-events">باز کردن Events</button>
-      </div>
-
-      <div style="margin-top:12px;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.02);background:linear-gradient(90deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));">
-        <div style="font-weight:800">اطلاع</div>
-        <div class="desc" style="margin-top:8px">تمامی جریان‌ها در سمت کاربر شبیه‌سازی شده‌اند و برای دموی UI مناسب‌اند.</div>
-      </div>
-    </aside>
-
-    <footer>© BLZ — همه چیز برای گیمرها طراحی شده</footer>
+        <div style="margin-top:auto" class="info-box">
+          <div style="font-weight:900">نکته</div>
+          <div style="margin-top:8px;color:var(--muted)">برای تست سرورها از Portalها استفاده کن. رمز admin: <strong>12pi</strong></div>
+        </div>
+      </aside>
+    </div>
   </div>
 
   <script>
-    /* ------------------------------
-       Background canvas (neon particles + subtle wave)
-       ------------------------------ */
+    /* =========================
+       Background: Waves + Pixel particles (Minecraft-like)
+       ========================= */
     (function(){
-      const canvas = document.getElementById('bg-canvas');
-      const ctx = canvas.getContext('2d');
-      let w = canvas.width = innerWidth;
-      let h = canvas.height = innerHeight;
+      // Waves canvas (smooth RGB)
+      const c1 = document.getElementById('bgWaves');
+      const g1 = c1.getContext('2d');
+      // Pixels canvas (blocky particles)
+      const c2 = document.getElementById('bgPixels');
+      const g2 = c2.getContext('2d');
 
-      const particles = [];
-      const P = 60;
-      for(let i=0;i<P;i++){
-        particles.push({
-          x: Math.random()*w,
-          y: Math.random()*h,
-          vx: (Math.random()-0.5)*0.3,
-          vy: (Math.random()-0.5)*0.3,
-          r: 1 + Math.random()*3,
-          hue: 180 + Math.random()*120
+      function resize(){
+        c1.width = innerWidth; c1.height = innerHeight;
+        c2.width = innerWidth; c2.height = innerHeight;
+      }
+      addEventListener('resize', resize);
+      resize();
+
+      // Waves parameters
+      let t0 = 0;
+      function drawWaves(time){
+        t0 = time;
+        const w = c1.width, h = c1.height;
+        g1.clearRect(0,0,w,h);
+        // base gradient
+        const grad = g1.createLinearGradient(0,0,w,h);
+        grad.addColorStop(0, 'rgba(0,240,255,0.02)');
+        grad.addColorStop(0.5, 'rgba(139,92,246,0.018)');
+        grad.addColorStop(1, 'rgba(255,80,180,0.01)');
+        g1.fillStyle = grad;
+        g1.fillRect(0,0,w,h);
+
+        // layered waves
+        const layers = 3;
+        for(let i=0;i<layers;i++){
+          g1.beginPath();
+          const amp = 30 + i*18;
+          const speed = 0.0006 + i*0.0004;
+          g1.moveTo(0,h/2);
+          for(let x=0;x<=w;x+=20){
+            const y = h/2 + Math.sin((x*0.008) + time*speed + i)*amp*(1 + Math.sin(time*0.0004 + i));
+            g1.lineTo(x,y);
+          }
+          g1.lineTo(w,h); g1.lineTo(0,h); g1.closePath();
+          g1.fillStyle = 'rgba(50,50,80,' + (0.02 + i*0.008) + ')';
+          g1.fill();
+        }
+        requestAnimationFrame(drawWaves);
+      }
+      requestAnimationFrame(drawWaves);
+
+      // Pixel particles (Minecraft-like small squares)
+      const pixels = [];
+      const PCOUNT = Math.round((innerWidth*innerHeight)/90000); // scalable
+      for(let i=0;i<Math.max(60, PCOUNT); i++){
+        pixels.push({
+          x: Math.random()*c2.width,
+          y: Math.random()*c2.height,
+          vx: (Math.random()-0.5)*0.6,
+          vy: (Math.random()-0.5)*0.6,
+          s: 2 + Math.floor(Math.random()*6),
+          hue: 120 + Math.random()*200,
+          alpha: 0.12 + Math.random()*0.2
         });
       }
 
-      function draw(t){
-        ctx.clearRect(0,0,w,h);
-        // moving gradient waves
-        const g = ctx.createLinearGradient(0, Math.sin(t/6000)*h, w, h - Math.cos(t/8000)*h);
-        g.addColorStop(0, 'rgba(0,240,255,0.02)');
-        g.addColorStop(0.5, 'rgba(139,92,246,0.015)');
-        g.addColorStop(1, 'rgba(255,83,200,0.01)');
-        ctx.fillStyle = g;
-        ctx.fillRect(0,0,w,h);
+      function drawPixels(){
+        g2.clearRect(0,0,c2.width,c2.height);
+        for(let p of pixels){
+          p.x += p.vx + Math.sin(t0*0.0002 + p.s)*0.2;
+          p.y += p.vy + Math.cos(t0*0.00025 + p.s)*0.2;
+          if(p.x < -50) p.x = c2.width + 50;
+          if(p.x > c2.width + 50) p.x = -50;
+          if(p.y < -50) p.y = c2.height + 50;
+          if(p.y > c2.height + 50) p.y = -50;
 
-        // neon particles
-        for(let p of particles){
-          p.x += p.vx + Math.sin(t/10000 + p.r)*0.2;
-          p.y += p.vy + Math.cos(t/8000 + p.r)*0.2;
-          if(p.x < -50) p.x = w+50;
-          if(p.x > w+50) p.x = -50;
-          if(p.y < -50) p.y = h+50;
-          if(p.y > h+50) p.y = -50;
+          // draw square (pixel)
+          g2.fillStyle = `hsla(${p.hue},90%,60%,${p.alpha})`;
+          g2.fillRect(Math.round(p.x), Math.round(p.y), p.s, p.s);
 
-          ctx.beginPath();
-          const grd = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*8);
-          grd.addColorStop(0, `hsla(${p.hue},100%,60%,0.18)`);
-          grd.addColorStop(1, `hsla(${p.hue},100%,50%,0)`);
-          ctx.fillStyle = grd;
-          ctx.arc(p.x,p.y,p.r*6,0,Math.PI*2);
-          ctx.fill();
+          // small glow
+          g2.fillStyle = `rgba(255,255,255,${p.alpha*0.02})`;
+          g2.fillRect(Math.round(p.x)-1, Math.round(p.y)-1, p.s+2, p.s+2);
         }
-
-        // subtle connecting lines
-        for(let i=0;i<40;i++){
-          const a = particles[Math.floor(Math.random()*particles.length)];
-          const b = particles[Math.floor(Math.random()*particles.length)];
-          const dx = a.x-b.x, dy = a.y-b.y, d = Math.sqrt(dx*dx+dy*dy);
-          if(d < 220){
-            ctx.beginPath();
-            ctx.moveTo(a.x,a.y);
-            ctx.lineTo(b.x,b.y);
-            ctx.strokeStyle = `rgba(120,120,255,${1 - d/220} )`;
-            ctx.lineWidth = 0.3;
-            ctx.stroke();
-          }
-        }
-
-        requestAnimationFrame(draw);
+        requestAnimationFrame(drawPixels);
       }
-      draw();
-
-      addEventListener('resize', ()=>{
-        w = canvas.width = innerWidth;
-        h = canvas.height = innerHeight;
-      });
+      requestAnimationFrame(drawPixels);
     })();
 
-    /* ------------------------------
-       Helpers & DOM interactions
-       ------------------------------ */
-    const $ = (s, root=document) => root.querySelector(s);
-    const $$ = (s, root=document) => Array.from(root.querySelectorAll(s));
+    /* =========================
+       UI interactions: panels & server flows
+       ========================= */
+    const $ = (sel, root=document) => root.querySelector(sel);
+    const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
 
-    // Panel open/close logic — panels hidden initially; open reveals with motion
-    function openPanel(id){
-      // close all reveals first
-      ['panel-servers','panel-app','panel-tourn','panel-events'].forEach(pid=>{
+    // Panels map
+    const panels = {
+      'servers': 'panel-servers',
+      'app': 'panel-app',
+      'tournament': 'panel-tournament',
+      'events': 'panel-events'
+    };
+
+    // Open panel function with strong animation
+    function openPanel(name){
+      // close current open panels
+      Object.values(panels).forEach(pid=>{
+        const el = document.getElementById(pid);
+        if(!el) return;
+        if(el.classList.contains('open')){
+          el.classList.remove('open');
+          el.classList.add('closing');
+          setTimeout(()=> el.classList.remove('closing'), 380);
+          el.setAttribute('aria-hidden','true');
+        }
+      });
+      const pid = panels[name];
+      const panel = document.getElementById(pid);
+      if(!panel) return;
+      // open target
+      panel.classList.add('open');
+      panel.setAttribute('aria-hidden','false');
+
+      // optional fancy entrance for contents (sparkles)
+      const fx = document.createElement('div');
+      fx.style.position = 'absolute'; fx.style.inset = '0'; fx.style.pointerEvents='none';
+      panel.appendChild(fx);
+      setTimeout(()=> { if(fx && fx.parentNode) fx.remove(); }, 800);
+
+      // focus first focusable
+      setTimeout(()=> {
+        const f = panel.querySelector('button, input');
+        if(f) f.focus();
+      }, 420);
+    }
+
+    // wire up big buttons
+    $$('[data-open]').forEach(btn=>{
+      btn.addEventListener('click', ()=> {
+        const which = btn.dataset.open;
+        openPanel(which);
+      });
+      btn.addEventListener('keydown', (e)=>{
+        if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); btn.click(); }
+      });
+    });
+
+    // quick open from side
+    $$('[data-open]').forEach(btn=>{
+      btn.addEventListener('click', ()=> {
+        const which = btn.dataset.open;
+        openPanel(which);
+      });
+    });
+
+    // close buttons
+    $$('[data-close]').forEach(btn=>{
+      btn.addEventListener('click', ()=> {
+        const pid = btn.dataset.close;
         const p = document.getElementById(pid);
         if(!p) return;
+        p.classList.remove('open');
+        p.classList.add('closing');
         p.setAttribute('aria-hidden','true');
-        const rv = p.querySelector('.reveal');
-        if(rv) rv.classList.remove('open');
+        setTimeout(()=> p.classList.remove('closing'), 360);
       });
-
-      // open target
-      const panel = document.getElementById(id);
-      if(!panel) return;
-      panel.setAttribute('aria-hidden','false');
-      const reveal = panel.querySelector('.reveal');
-      if(reveal){
-        // small animated pop
-        reveal.classList.add('open');
-        reveal.querySelector('.reveal-inner').animate([
-          { transform: 'translateY(8px) scale(0.98)', opacity:0 },
-          { transform: 'translateY(-6px) scale(1.02)', opacity:1 },
-          { transform: 'translateY(0) scale(1)', opacity:1 }
-        ], { duration:420, easing:'cubic-bezier(.18,.85,.25,1)'});
-        reveal.scrollIntoView({behavior:'smooth', block:'center'});
-      }
-    }
-
-    // wire top buttons & side quick buttons
-    $$('[data-open]').forEach(btn=>{
-      btn.addEventListener('click', ()=> openPanel(btn.dataset.open));
     });
 
-    // panel-button toggles for server small "پنل" buttons
-    $$('[data-toggle="srv"]').forEach(btn=>{
-      btn.addEventListener('click', (e)=>{
-        const id = btn.dataset.id;
+    // toggle server small panels
+    $$('[data-toggle-srv]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const id = btn.dataset.toggleSrv || btn.dataset.toggle;
         const control = document.getElementById('srv-control-' + id);
-        const isOpen = control.classList.contains('open');
+        if(!control) return;
         // close others
         [1,2,3].forEach(n=>{
-          const c = document.getElementById('srv-control-' + n);
-          if(c && n != id) c.classList.remove('open');
+          const c = document.getElementById('srv-control-'+n);
+          if(c && c !== control) c.classList.remove('open');
         });
-        if(isOpen) control.classList.remove('open');
-        else {
-          control.classList.add('open');
-          // smooth scroll control into view
-          control.scrollIntoView({behavior:'smooth', block:'center'});
-        }
+        control.classList.toggle('open');
       });
     });
 
-    // radio behaviour inside server controls
-    document.addEventListener('click', (e)=>{
-      const r = e.target.closest('.radio');
-      if(!r) return;
-      const parent = r.closest('.server-control');
-      if(!parent) return;
-      // deactivate siblings
-      parent.querySelectorAll('.radio').forEach(rr => rr.classList.remove('active'));
-      r.classList.add('active');
-    });
-
-    // Copy IP quick buttons
+    // copy IPs
     $$('[data-copy]').forEach(btn=>{
-      btn.addEventListener('click', ()=> {
-        const txt = btn.dataset.copy;
+      btn.addEventListener('click', async ()=>{
+        const val = btn.dataset.copy;
         try{
-          navigator.clipboard?.writeText(txt);
-          btn.textContent = 'Copied';
-          setTimeout(()=> btn.textContent = 'کپی IP', 1200);
+          await navigator.clipboard.writeText(val);
+          const prev = btn.textContent;
+          btn.textContent = 'کپی شد';
+          setTimeout(()=> btn.textContent = prev, 900);
         }catch(e){
-          alert('IP: ' + txt);
+          alert('IP: ' + val);
         }
       });
     });
 
-    /* ------------------------------
-       Connection flow: improved progress + outcomes per portal
-       Rules (mapping):
-         - Server1 (IR): Portal1 -> success, Portal2 -> Error: Timeout
-         - Server2 (RU): Portal1 -> Warning unstable, Portal2 -> Error: IP log
-         - Server3 (TR): Admin password (12pi) required
-       ------------------------------ */
+    // portal toggles
+    document.addEventListener('click', (e)=>{
+      const p = e.target.closest('.portal');
+      if(!p) return;
+      const parent = p.closest('.srv-control');
+      if(!parent) return;
+      parent.querySelectorAll('.portal').forEach(pp=> pp.classList.remove('active'));
+      p.classList.add('active');
+    });
 
-    function setProgress(barEl, percent){
-      barEl.style.width = percent + '%';
+    // typed effect helper for "Connection to Portal..."
+    function typedEffect(el, text){
+      el.textContent = '';
+      let i = 0;
+      const id = setInterval(()=>{
+        if(i < text.length) { el.textContent += text[i++]; }
+        else clearInterval(id);
+      }, 28);
+      return id;
     }
 
-    function outcomeFor(serverId, portalName){
-      // portalName is "Portal 1" or "Portal 2"
+    // progress helper
+    function setFill(id, pct){
+      const el = document.getElementById('bar-' + id);
+      if(el) el.style.width = pct + '%';
+    }
+
+    // outcome mapping
+    function outcomeFor(serverId, portal){
+      // serverId '1','2' strings
       if(serverId === '1'){
-        if(portalName === 'Portal 1') return {type:'success', text: 'Connection established'};
-        else return {type:'error', text: 'Error: Timeout'};
+        if(portal === 'Portal 1') return {type:'success', text:'Connection established'};
+        return {type:'error', text:'Error: Timeout'};
       }
       if(serverId === '2'){
-        if(portalName === 'Portal 1') return {type:'warn', text: 'Warning: Connection unstable'};
-        else return {type:'error', text: 'Error: IP log'};
+        if(portal === 'Portal 1') return {type:'warn', text:'Warning: Connection unstable'};
+        return {type:'error', text:'Error: IP log'};
       }
       return {type:'error', text:'Error: Unknown'};
     }
 
-    // wire connect buttons
+    // connect actions
     $$('[data-connect]').forEach(btn=>{
       btn.addEventListener('click', ()=>{
         const serverId = btn.dataset.connect;
         const control = document.getElementById('srv-control-' + serverId);
-        const bar = document.getElementById('bar-' + serverId);
-        const msg = document.getElementById('conn-msg-' + serverId);
-        // pick portal
-        const active = Array.from(control.querySelectorAll('.radio')).find(r=>r.classList.contains('active'));
+        const typedEl = document.getElementById('typed-' + serverId);
+        const msgEl = document.getElementById('msg-' + serverId);
+        const barEl = document.getElementById('bar-' + serverId);
+        if(!control || !typedEl || !msgEl || !barEl) return;
+
+        // which portal active?
+        const active = control.querySelector('.portal.active');
         const portal = active ? active.dataset.portal : 'Portal 1';
-        // reset
-        msg.innerHTML = '';
-        setProgress(bar, 0);
-        // animate progress over 4s with neon easing
+
+        // reset UI
+        msgEl.innerHTML = '';
+        typedEl.textContent = '';
+        barEl.style.width = '0%';
+
+        // show typed "Connection to Portal..."
+        const typedId = typedEffect(typedEl, 'Connection to ' + portal + '...');
+        // animate progress over 4s, with easing
         const duration = 4000;
         const start = performance.now();
-        // animated neon shimmer effect on bar via small interval
-        function animate(now){
-          const t = Math.min(1, (now - start) / duration);
-          // ease in-out cubic
+        const step = (now)=>{
+          const t = Math.min(1, (now - start)/duration);
+          // smooth cubic ease in-out
           const eased = t<0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2;
-          setProgress(bar, Math.round(eased*100));
-          // dynamic text update (typed effect) — show "Connection to Portal X..."
-          msg.innerHTML = `<span style="opacity:0.95">Connection to ${portal}...</span>`;
-          if(t < 1) requestAnimationFrame(animate);
+          barEl.style.width = Math.round(eased*100) + '%';
+          if(t < 1) requestAnimationFrame(step);
           else {
-            // after completion, show outcome
+            // clear typed interval if any left (we used setInterval inside typedEffect)
+            clearInterval(typedId);
+            // decide outcome
             const res = outcomeFor(serverId, portal);
             if(res.type === 'success'){
-              msg.innerHTML = `<div class="msg success">${res.text}</div>`;
-              // small neon flash on bar
-              bar.style.transition = 'width .2s';
-              setTimeout(()=> bar.style.width = '100%', 120);
+              msgEl.innerHTML = '<div class="msg success">' + res.text + '</div>';
+              // micro flash effect
+              barEl.style.boxShadow = '0 12px 40px rgba(0,240,255,0.12)';
+              setTimeout(()=> barEl.style.boxShadow = '', 1200);
             } else if(res.type === 'warn'){
-              msg.innerHTML = `<div class="msg warn">${res.text}</div>`;
+              msgEl.innerHTML = '<div class="msg warn">' + res.text + '</div>';
             } else {
-              msg.innerHTML = `<div class="msg error">${res.text}</div>`;
+              msgEl.innerHTML = '<div class="msg error">' + res.text + '</div>';
             }
-            // reset bar slowly after short delay
-            setTimeout(()=> { setProgress(bar, 0); }, 1800);
+            // reset typed text after a moment
+            setTimeout(()=> { typedEl.textContent = ''; }, 900);
+            // reset bar after short delay
+            setTimeout(()=> { barEl.style.width = '0%'; }, 1800);
           }
-        }
-        requestAnimationFrame(animate);
+        };
+        requestAnimationFrame(step);
       });
     });
 
-    // Admin verify for server 3
+    // admin verify for server 3
     $$('[data-verify]').forEach(btn=>{
       btn.addEventListener('click', ()=>{
         const pw = document.getElementById('admin-pw').value || '';
-        const adminMsg = document.getElementById('admin-msg');
-        adminMsg.innerHTML = '';
+        const msgEl = document.getElementById('msg-3');
+        msgEl.innerHTML = '';
         if(pw === '12pi'){
-          adminMsg.innerHTML = `<div class="msg success">Code sent to your panel</div>`;
+          msgEl.innerHTML = '<div class="msg success">Code sent to your panel</div>';
           document.getElementById('admin-pw').value = '';
         } else {
-          adminMsg.innerHTML = `<div class="msg error">Incorrect password</div>`;
+          msgEl.innerHTML = '<div class="msg error">Incorrect password</div>';
         }
       });
     });
 
-    /* ------------------------------
-       Opening panels via top buttons should focus and animate
-       Also allow keyboard (Enter/Space)
-       ------------------------------ */
-    document.addEventListener('keydown', (e)=>{
-      if((e.key === 'Enter' || e.key === ' ') && document.activeElement.matches('.panel-button')){
-        e.preventDefault();
-        document.activeElement.click();
-      }
+    // ensure panels are initially closed
+    Object.values(panels).forEach(pid=>{
+      const el = document.getElementById(pid);
+      if(el) el.setAttribute('aria-hidden','true');
     });
 
-    // When clicking panel open buttons, show corresponding reveal
-    $$('[data-open]').forEach(b=>{
-      b.addEventListener('click', ()=>{
-        const id = b.dataset.open;
-        openPanel(id);
-
-        // focus first interactive element inside panel
-        const panel = document.getElementById(id);
-        if(!panel) return;
-        setTimeout(()=> {
-          const f = panel.querySelector('button, input');
-          if(f) f.focus();
-        }, 450);
+    // close srv-controls when clicking outside
+    document.addEventListener('click', (e)=>{
+      if(e.target.closest('.srv-control') || e.target.closest('[data-toggle-srv]') || e.target.closest('.portal')) return;
+      [1,2,3].forEach(n=>{
+        const c = document.getElementById('srv-control-'+n);
+        if(c) c.classList.remove('open');
       });
     });
 
-    // Initially, show nothing — user must open panels
-    ['panel-servers','panel-app','panel-tourn','panel-events'].forEach(pid=>{
-      const p = document.getElementById(pid);
-      if(p) p.setAttribute('aria-hidden','true');
+    // Accessibility: Enter/Space triggers on focused big-btn
+    $$('.big-btn').forEach(b=>{
+      b.addEventListener('keydown', (e)=>{
+        if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); b.click(); }
+      });
     });
 
-    // small polish: clicking outside reveals closes server controls
-    document.addEventListener('click', (e)=>{
-      if(!e.target.closest('.server-control') && !e.target.matches('[data-toggle="srv"]')){
-        [1,2,3].forEach(n=>{
-          const c = document.getElementById('srv-control-'+n);
-          if(c) c.classList.remove('open');
+    // small keyboard support for closing via Escape
+    document.addEventListener('keydown', (e)=>{
+      if(e.key === 'Escape'){
+        Object.values(panels).forEach(pid=>{
+          const el = document.getElementById(pid);
+          if(el && el.classList.contains('open')){
+            el.classList.remove('open');
+            el.classList.add('closing');
+            setTimeout(()=> el.classList.remove('closing'), 360);
+            el.setAttribute('aria-hidden','true');
+          }
         });
       }
     });
-
-    // Prevent form submission or page reload by Enter in inputs
-    document.addEventListener('submit', e => e.preventDefault());
   </script>
 </body>
 </html>
