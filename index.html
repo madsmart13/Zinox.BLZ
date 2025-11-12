@@ -3,63 +3,58 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Zinox.BLZ - Ultimate Gaming</title>
+<title>Zinox.BLZ Ultra 4.0</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>
 :root{
-    --bg1:#04020a; --bg2:#050621;
-    --purple:#8b5cf6; --cyan:#00f0ff; --mint:#33ffb5;
-    --danger:#ff4c4c; --success:#7ef5b3;
-    font-family:Inter,sans-serif; direction:rtl;
+  --bg1:#04020a; --bg2:#050621;
+  --purple:#9b5cff; --cyan:#00f5ff; --mint:#3fffbb;
+  --danger:#ff3b3b; --success:#7ef5b3;
+  font-family:Inter,sans-serif; direction:rtl;
 }
 html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:linear-gradient(180deg,var(--bg1),var(--bg2));}
-body{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;position:relative;perspective:1200px;color:#fff;}
-h1#logo{font-family:Orbitron,sans-serif;font-size:36px;margin:24px;color:var(--cyan);text-shadow:0 0 20px rgba(0,240,255,0.8);}
+body{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;position:relative;perspective:1400px;color:#fff;}
+h1#logo{font-family:Orbitron,sans-serif;font-size:42px;margin:24px;color:var(--cyan);text-shadow:0 0 24px rgba(0,245,255,0.9);animation:pulseLogo 2s infinite;}
+@keyframes pulseLogo{0%,100%{text-shadow:0 0 24px rgba(0,245,255,0.9);}50%{text-shadow:0 0 40px rgba(0,245,255,1);}}
 
-/* پس زمینه */
 #cube-bg, canvas.bg-pixels, canvas.bg-waves{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;}
-canvas.bg-waves{mix-blend-mode:screen;opacity:0.35;filter:blur(6px) saturate(130%);}
-canvas.bg-pixels{mix-blend-mode:normal;opacity:0.9;filter:contrast(1.05) saturate(140%);z-index:1;}
+canvas.bg-waves{mix-blend-mode:screen;opacity:0.35;filter:blur(6px) saturate(150%);}
+canvas.bg-pixels{mix-blend-mode:normal;opacity:0.9;filter:contrast(1.1) saturate(150%);z-index:1;}
 
-/* دکمه ها */
 #menu{display:flex;flex-direction:column;gap:16px;z-index:3;position:relative;margin-top:20px;}
 .menu-btn{
-    width:280px;height:88px;border-radius:16px;background:linear-gradient(135deg,var(--purple),var(--cyan));
-    border:none;color:#fff;font-weight:800;font-size:20px;cursor:pointer;position:relative;overflow:hidden;
-    display:flex;align-items:center;justify-content:center;box-shadow:0 8px 28px rgba(0,0,0,0.7);transition:transform 0.3s ease, box-shadow 0.3s ease;
+  width:300px;height:88px;border-radius:18px;background:linear-gradient(135deg,var(--purple),var(--cyan));
+  border:none;color:#fff;font-weight:800;font-size:20px;cursor:pointer;position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 10px 32px rgba(0,0,0,0.8);transition:transform 0.3s ease, box-shadow 0.3s ease;
 }
-.menu-btn:hover{transform:translateY(-6px);box-shadow:0 18px 48px rgba(0,0,0,0.9);}
-.menu-btn::before{content:"";position:absolute;inset:0;border-radius:16px;background:linear-gradient(90deg,rgba(255,255,255,0.1),rgba(0,0,0,0));mix-blend-mode:screen;}
+.menu-btn:hover{transform:translateY(-8px) scale(1.05);box-shadow:0 20px 48px rgba(0,0,0,1);}
+.menu-btn::before{content:"";position:absolute;inset:0;border-radius:18px;background:linear-gradient(90deg,rgba(255,255,255,0.1),rgba(0,0,0,0));mix-blend-mode:screen;}
 .menu-btn .icon{width:40px;height:40px;margin-left:12px;background:#fff;border-radius:6px;}
 
-/* پنل ها */
-.panel{position:fixed;inset:0;background:linear-gradient(180deg,var(--bg1),var(--bg2));backdrop-filter:blur(6px);z-index:5;display:none;flex-direction:column;align-items:center;justify-content:center;overflow:auto;padding:24px;transition:all 0.6s ease;}
-.panel h2{font-family:Orbitron,sans-serif;color:var(--cyan);font-size:32px;margin-bottom:16px;text-shadow:0 0 14px rgba(0,240,255,0.6);}
-.panel .notice{font-size:20px;color:var(--danger);text-align:center;margin-top:12px;background:rgba(255,0,0,0.1);padding:8px 16px;border-radius:8px;animation:blink 1.2s infinite;}
+.panel{position:fixed;inset:0;background:linear-gradient(180deg,var(--bg1),var(--bg2));backdrop-filter:blur(8px);z-index:5;display:none;flex-direction:column;align-items:center;justify-content:center;overflow:auto;padding:24px;transition:all 0.8s ease;}
+.panel h2{font-family:Orbitron,sans-serif;color:var(--cyan);font-size:36px;margin-bottom:16px;text-shadow:0 0 16px rgba(0,245,255,0.8);}
+.panel .notice{font-size:20px;color:var(--danger);text-align:center;margin-top:12px;background:rgba(255,0,0,0.15);padding:8px 16px;border-radius:8px;animation:blink 1.2s infinite;}
 @keyframes blink{0%,50%,100%{opacity:1}25%,75%{opacity:0.2;}}
 
-/* باز شدن پنل */
-.panel.show{display:flex;animation:panelOpen 0.6s ease forwards;}
-@keyframes panelOpen{0%{transform:scale(0.8) translateY(100px);opacity:0}100%{transform:scale(1) translateY(0);opacity:1}}
+.panel.show{display:flex;animation:panelOpen 0.8s ease forwards;}
+@keyframes panelOpen{0%{transform:scale(0.7) rotateX(15deg) translateY(120px);opacity:0}100%{transform:scale(1) rotateX(0deg) translateY(0);opacity:1;}}
 
-/* input و دکمه */
-.input-field{margin-top:12px;padding:12px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:rgba(0,0,0,0.25);color:#fff;width:240px;text-align:center;font-size:16px;transition:all 0.2s;}
-.input-field:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 14px var(--cyan);}
-.submit-btn{margin-top:12px;padding:10px 20px;border:none;border-radius:12px;background:var(--cyan);color:#04020a;font-weight:700;cursor:pointer;transition:all 0.2s;}
-.submit-btn:hover{background:var(--purple);color:#fff;box-shadow:0 0 18px var(--cyan);}
+.input-field{margin-top:12px;padding:12px 16px;border-radius:14px;border:1px solid rgba(255,255,255,0.15);background:rgba(0,0,0,0.25);color:#fff;width:240px;text-align:center;font-size:16px;transition:all 0.2s;}
+.input-field:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 16px var(--cyan);}
+.submit-btn{margin-top:12px;padding:12px 24px;border:none;border-radius:14px;background:var(--cyan);color:#04020a;font-weight:700;cursor:pointer;transition:all 0.2s;}
+.submit-btn:hover{background:var(--purple);color:#fff;box-shadow:0 0 24px var(--cyan);}
 
-/* سرور کانکشن */
-.server-btn{margin:8px;padding:12px 20px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:rgba(0,0,0,0.3);color:#fff;cursor:pointer;transition:all 0.2s;}
-.server-btn:hover{background:rgba(0,255,255,0.15);box-shadow:0 0 18px rgba(0,240,255,0.6);}
-.loader{text-align:center;font-family:Orbitron, sans-serif;font-size:24px;margin-top:16px;opacity:0;animation:fadein 0.3s forwards;}
-@keyframes fadein{from{opacity:0} to{opacity:1}}
+.server-btn{margin:10px;padding:14px 22px;border-radius:14px;border:1px solid rgba(255,255,255,0.15);background:rgba(0,0,0,0.35);color:#fff;cursor:pointer;transition:all 0.25s;}
+.server-btn:hover{background:rgba(0,255,255,0.15);box-shadow:0 0 18px rgba(0,245,255,0.6);}
 
-/* progress bar */
+.loader{text-align:center;font-family:Orbitron,sans-serif;font-size:24px;margin-top:16px;opacity:0;transition:opacity 0.3s;}
 .progress-container{width:60%;height:20px;background:rgba(255,255,255,0.1);border-radius:10px;margin-top:16px;overflow:hidden;}
 .progress-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--purple),var(--cyan));border-radius:10px;transition:width 0.4s ease;}
-
-/* اعلان خطا */
 #errorNotice{position:fixed;top:20px;right:20px;padding:10px 18px;background:var(--danger);color:#fff;border-radius:10px;font-weight:600;opacity:0;transition:opacity 0.5s, transform 0.5s;z-index:10;}
+
+.portal-selection{display:flex;gap:20px;margin-top:20px;opacity:0;transform:translateY(-20px);transition:all 0.5s;}
+.portal-btn{padding:12px 20px;background:linear-gradient(135deg,var(--purple),var(--cyan));border-radius:12px;border:none;color:#fff;font-weight:700;cursor:pointer;box-shadow:0 0 12px rgba(0,245,255,0.6);transition:transform 0.3s;}
+.portal-btn:hover{transform:scale(1.1);}
 </style>
 </head>
 <body>
@@ -85,6 +80,12 @@ canvas.bg-pixels{mix-blend-mode:normal;opacity:0.9;filter:contrast(1.05) saturat
   <button class="server-btn" data-server="1">سرور IR</button>
   <button class="server-btn" data-server="2">سرور RU</button>
   <button class="server-btn" data-server="3">سرور TR</button>
+
+  <div class="portal-selection" id="portalSelection">
+    <button class="portal-btn" data-portal="1">Portal 1</button>
+    <button class="portal-btn" data-portal="2">Portal 2</button>
+  </div>
+
   <div class="loader" id="serverLoader"></div>
   <div class="progress-container" id="serverProgress"><div class="progress-bar" id="progressBar"></div></div>
   <button class="submit-btn" id="closeServers">بازگشت</button>
@@ -112,19 +113,14 @@ canvas.bg-pixels{mix-blend-mode:normal;opacity:0.9;filter:contrast(1.05) saturat
 </div>
 
 <script>
-// باز و بسته کردن پنل ها
 // ==== باز و بسته کردن پنل‌ها ====
 document.querySelectorAll('.menu-btn').forEach(btn=>{
     btn.addEventListener('click',()=>{
         const panelId = btn.dataset.panel;
         const panel = document.getElementById(panelId);
-        if(panel){
-            panel.classList.add('show');
-        }
+        if(panel) panel.classList.add('show');
     });
 });
-
-// دکمه های بازگشت
 document.querySelectorAll('.submit-btn[id^="close"]').forEach(btn=>{
     btn.addEventListener('click',()=>{
         const panelId = btn.id.replace('close','').toLowerCase();
@@ -133,59 +129,57 @@ document.querySelectorAll('.submit-btn[id^="close"]').forEach(btn=>{
     });
 });
 
-// ==== لودینگ سرورها و انتخاب پرتال ====
+// ==== سرورها با پرتال گرافیکی ====
 const serverLoader = document.getElementById('serverLoader');
 const progressBar = document.getElementById('progressBar');
 const errorNotice = document.getElementById('errorNotice');
+const portalSelection = document.getElementById('portalSelection');
+let activeServer = null;
 
 document.querySelectorAll('.server-btn').forEach(btn=>{
-    btn.addEventListener('click', async ()=>{
-        serverLoader.style.opacity = 1;
+    btn.addEventListener('click', ()=>{
+        activeServer = btn.dataset.server;
+        serverLoader.style.opacity = 0;
         progressBar.style.width = '0%';
-        serverLoader.textContent = '';
+        portalSelection.style.opacity = '1';
+        portalSelection.style.transform = 'translateY(0)';
+    });
+});
 
-        // تایپ Connection...
-        let text = 'Connection...';
-        let i=0;
+document.querySelectorAll('.portal-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+        const portal = btn.dataset.portal;
+        portalSelection.style.opacity = 0;
+        portalSelection.style.transform = 'translateY(-20px)';
+        serverLoader.style.opacity = 1;
+        serverLoader.textContent = '';
+        progressBar.style.width='0%';
+
+        // تایپ Connection
+        let text = 'Connection...'; let i=0;
         const typingInterval = setInterval(()=>{
-            if(i<text.length){serverLoader.textContent += text[i]; i++;}
-            else clearInterval(typingInterval);
+            if(i<text.length){serverLoader.textContent+=text[i]; i++;} else clearInterval(typingInterval);
         }, 100);
 
-        // progress bar animation
+        // progress
         let progress = 0;
         const progInterval = setInterval(()=>{
-            progress += 1.5;
+            progress+=1.5;
             if(progress>100) progress=100;
             progressBar.style.width = progress + '%';
             if(progress>=100) clearInterval(progInterval);
         }, 60);
 
-        // بعد ۴ ثانیه نتیجه
         setTimeout(()=>{
-            if(btn.dataset.server === '3'){ // سرور TR با پسورد
+            if(activeServer==='3'){
                 let pass = prompt('رمز Admin را وارد کنید:');
-                if(pass==='12pi'){
-                    serverLoader.textContent='کد برای پنل شما ارسال شد';
-                } else {
-                    serverLoader.textContent='رمز اشتباه';
-                    showErrorNotice('رمز اشتباه');
-                }
-            } else { // سرور IR و RU
-                // انتخاب پرتال انیمیشنی
-                const portal = prompt('Portal انتخاب کنید: 1 یا 2');
-                if(portal==='1' || portal==='2'){
-                    serverLoader.textContent='کانکت به Portal '+portal+'...';
-                    setTimeout(()=>{serverLoader.textContent='Error: Log IP'; showErrorNotice('Error: Log IP');},4000);
-                } else {
-                    serverLoader.textContent='Error: Log IP';
-                    showErrorNotice('Error: Log IP');
-                }
+                if(pass==='12pi'){serverLoader.textContent='کد برای پنل شما ارسال شد';}
+                else{serverLoader.textContent='رمز اشتباه'; showErrorNotice('رمز اشتباه');}
+            } else {
+                serverLoader.textContent='کانکت به Portal '+portal+'...';
+                setTimeout(()=>{serverLoader.textContent='Error: Log IP'; showErrorNotice('Error: Log IP');},4000);
             }
-            setTimeout(()=>{
-                serverLoader.style.opacity=0;
-                progressBar.style.width='0%';
-            },3000);
+            setTimeout(()=>{serverLoader.style.opacity=0; progressBar.style.width='0%';},3000);
         },4000);
     });
 });
@@ -195,83 +189,36 @@ function showErrorNotice(msg){
     errorNotice.textContent = msg;
     errorNotice.style.opacity = 1;
     errorNotice.style.transform = 'translateX(0)';
-    setTimeout(()=>{
-        errorNotice.style.opacity = 0;
-        errorNotice.style.transform = 'translateX(20px)';
-    },2000);
+    setTimeout(()=>{errorNotice.style.opacity = 0; errorNotice.style.transform='translateX(20px)';},2000);
 }
 
-// ==== پنجره ها و canvas ها: مکعب 3D و موج RGB و پارتیکل پیکسلی ====
+// ==== پس‌زمینه: پارتیکل، موج RGB، مکعب 3D ====
 function initBackgrounds(){
-    // canvas pixels
     const pixelCanvas = document.getElementById('pixels');
     const ctx = pixelCanvas.getContext('2d');
-    pixelCanvas.width = window.innerWidth;
-    pixelCanvas.height = window.innerHeight;
+    pixelCanvas.width = window.innerWidth; pixelCanvas.height = window.innerHeight;
     let pixels = [];
-    for(let i=0;i<300;i++){
-        pixels.push({x:Math.random()*pixelCanvas.width,y:Math.random()*pixelCanvas.height,size:2+Math.random()*2,dx:(Math.random()-0.5)*0.4,dy:(Math.random()-0.5)*0.4,color:['#9b5cff','#00f5ff','#3fffbb'][Math.floor(Math.random()*3)]});
-    }
-    function drawPixels(){
-        ctx.clearRect(0,0,pixelCanvas.width,pixelCanvas.height);
-        pixels.forEach(p=>{
-            ctx.fillStyle=p.color;
-            ctx.fillRect(p.x,p.y,p.size,p.size);
-            p.x+=p.dx; p.y+=p.dy;
-            if(p.x<0)p.x=pixelCanvas.width;
-            if(p.x>pixelCanvas.width)p.x=0;
-            if(p.y<0)p.y=pixelCanvas.height;
-            if(p.y>pixelCanvas.height)p.y=0;
-        });
-        requestAnimationFrame(drawPixels);
-    }
+    for(let i=0;i<300;i++){pixels.push({x:Math.random()*pixelCanvas.width,y:Math.random()*pixelCanvas.height,size:2+Math.random()*2,dx:(Math.random()-0.5)*0.4,dy:(Math.random()-0.5)*0.4,color:['#9b5cff','#00f5ff','#3fffbb'][Math.floor(Math.random()*3)]});}
+    function drawPixels(){ctx.clearRect(0,0,pixelCanvas.width,pixelCanvas.height);pixels.forEach(p=>{ctx.fillStyle=p.color;ctx.fillRect(p.x,p.y,p.size,p.size);p.x+=p.dx;p.y+=p.dy;if(p.x<0)p.x=pixelCanvas.width;if(p.x>pixelCanvas.width)p.x=0;if(p.y<0)p.y=pixelCanvas.height;if(p.y>pixelCanvas.height)p.y=0;});requestAnimationFrame(drawPixels);}
     drawPixels();
 
-    // canvas waves
     const waveCanvas = document.getElementById('waves');
     const wctx = waveCanvas.getContext('2d');
-    waveCanvas.width = window.innerWidth;
-    waveCanvas.height = window.innerHeight;
-    function drawWaves(time=0){
-        wctx.clearRect(0,0,waveCanvas.width,waveCanvas.height);
-        for(let i=0;i<waveCanvas.height;i+=12){
-            wctx.strokeStyle=`rgba(${128+Math.sin(time*0.002+i*0.01)*127},${128+Math.sin(time*0.002+i*0.01+2)*127},255,0.12)`;
-            wctx.beginPath(); wctx.moveTo(0,i); wctx.lineTo(waveCanvas.width,i); wctx.stroke();
-        }
-        requestAnimationFrame(t=>drawWaves(t));
-    }
+    waveCanvas.width = window.innerWidth; waveCanvas.height = window.innerHeight;
+    function drawWaves(time=0){wctx.clearRect(0,0,waveCanvas.width,waveCanvas.height);for(let i=0;i<waveCanvas.height;i+=12){wctx.strokeStyle=`rgba(${128+Math.sin(time*0.002+i*0.01)*127},${128+Math.sin(time*0.002+i*0.01+2)*127},255,0.12)`; wctx.beginPath(); wctx.moveTo(0,i); wctx.lineTo(waveCanvas.width,i); wctx.stroke();}requestAnimationFrame(t=>drawWaves(t));}
     drawWaves();
 
-    // canvas cube-bg
     const cubeCanvas = document.getElementById('cube-bg');
     const cctx = cubeCanvas.getContext('2d');
-    cubeCanvas.width = window.innerWidth;
-    cubeCanvas.height = window.innerHeight;
+    cubeCanvas.width = window.innerWidth; cubeCanvas.height = window.innerHeight;
     let cubes = [];
-    for(let i=0;i<30;i++){
-        cubes.push({x:Math.random()*cubeCanvas.width,y:Math.random()*cubeCanvas.height,z:Math.random()*400-200,size:20+Math.random()*15,angleX:Math.random()*Math.PI*2,angleY:Math.random()*Math.PI*2,speed:0.002+Math.random()*0.003});
-    }
-    function drawCubes(){
-        cctx.clearRect(0,0,cubeCanvas.width,cubeCanvas.height);
-        cubes.forEach(c=>{
-            c.angleX+=c.speed; c.angleY+=c.speed;
-            let scale=500/(500+c.z);
-            let x=cubeCanvas.width/2 + (c.x-cubeCanvas.width/2)*scale;
-            let y=cubeCanvas.height/2 + (c.y-cubeCanvas.height/2)*scale;
-            let s=c.size*scale;
-            cctx.save();
-            cctx.translate(x,y);
-            cctx.rotate(c.angleX); cctx.strokeStyle=`rgba(${200+Math.sin(c.angleX)*55},${100+Math.cos(c.angleY)*155},255,0.6)`;
-            cctx.strokeRect(-s/2,-s/2,s,s);
-            cctx.restore();
-        });
-        requestAnimationFrame(drawCubes);
-    }
+    for(let i=0;i<30;i++){cubes.push({x:Math.random()*cubeCanvas.width,y:Math.random()*cubeCanvas.height,z:Math.random()*400-200,size:20+Math.random()*15,angleX:Math.random()*Math.PI*2,angleY:Math.random()*Math.PI*2,speed:0.002+Math.random()*0.003});}
+    function drawCubes(){cctx.clearRect(0,0,cubeCanvas.width,cubeCanvas.height);cubes.forEach(c=>{c.angleX+=c.speed;c.angleY+=c.speed;let scale=500/(500+c.z);let x=cubeCanvas.width/2+(c.x-cubeCanvas.width/2)*scale;let y=cubeCanvas.height/2+(c.y-cubeCanvas.height/2)*scale;let s=c.size*scale;cctx.save();cctx.translate(x,y);cctx.rotate(c.angleX);cctx.strokeStyle=`rgba(${200+Math.sin(c.angleX)*55},${100+Math.cos(c.angleY)*155},255,0.6)`;cctx.strokeRect(-s/2,-s/2,s,s);cctx.restore();});requestAnimationFrame(drawCubes);}
     drawCubes();
 
-    window.addEventListener('resize',()=>{
-        pixelCanvas.width=waveCanvas.width=cubeCanvas.width=window.innerWidth;
-        pixelCanvas.height=waveCanvas.height=cubeCanvas.height=window.innerHeight;
-    });
+    window.addEventListener('resize',()=>{pixelCanvas.width=waveCanvas.width=cubeCanvas.width=window.innerWidth;pixelCanvas.height=waveCanvas.height=cubeCanvas.height=window.innerHeight;});
 }
 initBackgrounds();
+</script>
+</body>
+</html>
